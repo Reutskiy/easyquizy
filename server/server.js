@@ -18,9 +18,8 @@ var players = new Players();
 //Mongodb setup
 var MongoClient = require('mongodb').MongoClient;
 var mongoose = require('mongoose');
-var url = "mongodb://mio:deepbluesea777@ds163054.mlab.com:63054/easyquizy";
+var url = "mongodb://localhost:27017/";
 mongoose.connect('mongodb://mio:deepbluesea777@ds163054.mlab.com:63054/easyquizy');
-
 
 
 app.use(express.static(publicPath));
