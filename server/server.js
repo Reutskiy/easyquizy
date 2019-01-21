@@ -26,8 +26,8 @@ mongoose.connect('mongodb://mio:deepbluesea777@ds163054.mlab.com:63054/easyquizy
 app.use(express.static(publicPath));
 
 //Starting server on port 3000
-server.listen(3000, () => {
-    console.log("Server started on port 3000");
+server.listen(3001, () => {
+    console.log("Server started on port 3001");
 });
 
 //When a connection to server is made from client
