@@ -24,6 +24,7 @@ var url = 'mongodb://mio:deepbluesea777@ds157834.mlab.com:57834/kahootdb';
 
 
 app.use(express.static(publicPath));
+app.listen(process.env.PORT || 3000, () => console.log('Server has started'));
 
 //Starting server on port 3000
 var server_port = process.env.YOUR_PORT || process.env.PORT || 80;
