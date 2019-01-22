@@ -19,7 +19,7 @@ var players = new Players();
 var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
 var mongoose = require('mongoose');
-var url = 'mongodb://mio:deepbluesea777@ds163054.mlab.com:63054/easyquizy';
+var url = 'mongodb://mio:deepbluesea777@ds157834.mlab.com:57834/kahootdb';
 //mongoose.connect('mongodb://mio:deepbluesea777@ds163054.mlab.com:63054/easyquizy');
 
 
