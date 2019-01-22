@@ -17,5 +17,13 @@
   },
   "devDependencies": {
     "expect": "^23.0.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Reutskiy/easyquizy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Reutskiy/easyquizy/issues"
+  },
+  "homepage": "https://github.com/Reutskiy/easyquizy#readme"
 }
