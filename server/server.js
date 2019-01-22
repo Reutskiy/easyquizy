@@ -32,7 +32,7 @@ server.listen(server_port, server_host, function() {
     console.log('Listening on port %d', server_port);
 });
 
-//When a connection to server is made from client
+//When a connection to server is made from clien
 io.on('connection', (socket) => {
 
     //When host connects for the first time
