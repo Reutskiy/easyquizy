@@ -16,10 +16,11 @@ var games = new LiveGames();
 var players = new Players();
 
 //Mongodb setup
-var MongoClient = require('mongodb').MongoClient;
+var mongodb = require('mongodb');
+var MongoClient = mongodb.MongoClient;
 var mongoose = require('mongoose');
-var url = "mongodb://localhost:27017/";
-mongoose.connect('mongodb://mio:deepbluesea777@ds163054.mlab.com:63054/easyquizy');
+var url = 'mongodb://mio:deepbluesea777@ds163054.mlab.com:63054/easyquizy';
+//mongoose.connect('mongodb://mio:deepbluesea777@ds163054.mlab.com:63054/easyquizy');
 
 
 app.use(express.static(publicPath));
@@ -33,10 +34,10 @@ server.listen(server_port, server_host, function() {
 
 //When a connection to server is made from client
 io.on('connection', (socket) => {
-    
+
     //When host connects for the first time
     socket.on('host-join', (data) =>{
-        
+
         //Check to see if id passed in url corresponds to id of kahoot game in database
         MongoClient.connect(url, function(err, db) {
             if (err) throw err;
@@ -44,7 +45,7 @@ io.on('connection', (socket) => {
             var query = { id:  parseInt(data.id)};
             dbo.collection('kahootGames').find(query).toArray(function(err, result){
                 if(err) throw err;
-                
+
                 //A kahoot was found with the id passed in url
                 if(result[0] !== undefined){
                     var gamePin = Math.floor(Math.random()*90000) + 10000; //new pin for game
@@ -55,7 +56,7 @@ io.on('connection', (socket) => {
 
                     socket.join(game.pin);//The host is joining a room based on the pin
 
-                    console.log('Game Created with pin:', game.pin); 
+                    console.log('Game Created with pin:', game.pin);
 
                     //Sending game pin to host so they can display it for players to join
                     socket.emit('showGamePin', {
@@ -67,9 +68,9 @@ io.on('connection', (socket) => {
                 db.close();
             });
         });
-        
+
     });
-    
+
     //When the host connects from the game view
     socket.on('host-join-game', (data) => {
         var oldHostId = data.id;
@@ -86,19 +87,19 @@ io.on('connection', (socket) => {
             var gameid = game.gameData['gameid'];
             MongoClient.connect(url, function(err, db){
                 if (err) throw err;
-    
+
                 var dbo = db.db('kahootDB');
                 var query = { id:  parseInt(gameid)};
                 dbo.collection("kahootGames").find(query).toArray(function(err, res) {
                     if (err) throw err;
-                    
+
                     var question = res[0].questions[0].question;
                     var answer1 = res[0].questions[0].answers[0];
                     var answer2 = res[0].questions[0].answers[1];
                     var answer3 = res[0].questions[0].answers[2];
                     var answer4 = res[0].questions[0].answers[3];
                     var correctAnswer = res[0].questions[0].correct;
-                    
+
                     socket.emit('gameQuestions', {
                         q1: question,
                         a1: answer1,
@@ -111,49 +112,49 @@ io.on('connection', (socket) => {
                     db.close();
                 });
             });
-            
-            
+
+
             io.to(game.pin).emit('gameStartedPlayer');
             game.gameData.questionLive = true;
         }else{
             socket.emit('noGameFound');//No game was found, redirect user
         }
     });
-    
+
     //When player connects for the first time
     socket.on('player-join', (params) => {
-        
+
         var gameFound = false; //If a game is found with pin provided by player
-        
+
         //For each game in the Games class
         for(var i = 0; i < games.games.length; i++){
             //If the pin is equal to one of the game's pin
             if(params.pin == games.games[i].pin){
-                
+
                 console.log('Player connected to game');
-                
+
                 var hostId = games.games[i].hostId; //Get the id of host of game
-                
-                
+
+
                 players.addPlayer(hostId, socket.id, params.name, {score: 0, answer: 0}); //add player to game
-                
+
                 socket.join(params.pin); //Player is joining room based on pin
-                
+
                 var playersInGame = players.getPlayers(hostId); //Getting all players in game
-                
+
                 io.to(params.pin).emit('updatePlayerLobby', playersInGame);//Sending host player data to display
                 gameFound = true; //Game has been found
             }
         }
-        
+
         //If the game has not been found
         if(gameFound == false){
             socket.emit('noGameFound'); //Player is sent back to 'join' page because game was not found with pin
         }
-        
-        
+
+
     });
-    
+
     //When the player connects from game view
     socket.on('player-join-game', (data) => {
         var player = players.getPlayer(data.id);
@@ -161,15 +162,15 @@ io.on('connection', (socket) => {
             var game = games.getGame(player.hostId);
             socket.join(game.pin);
             player.playerId = socket.id;//Update player id with socket id
-            
+
             var playerData = players.getPlayers(game.hostId);
             socket.emit('playerGameData', playerData);
         }else{
             socket.emit('noGameFound');//No player found
         }
-        
+
     });
-    
+
     //When a host or player leaves the site
     socket.on('disconnect', () => {
         var game = games.getGame(socket.id); //Finding game with socket.id
@@ -198,20 +199,20 @@ io.on('connection', (socket) => {
                 var hostId = player.hostId;//Gets id of host of the game
                 var game = games.getGame(hostId);//Gets game data with hostId
                 var pin = game.pin;//Gets the pin of the game
-                
+
                 if(game.gameLive == false){
                     players.removePlayer(socket.id);//Removes player from players class
                     var playersInGame = players.getPlayers(hostId);//Gets remaining players in game
 
                     io.to(pin).emit('updatePlayerLobby', playersInGame);//Sends data to host to update screen
                     socket.leave(pin); //Player is leaving the room
-            
+
                 }
             }
         }
-        
+
     });
-    
+
     //Sets data in player class to answer from player
     socket.on('playerAnswer', function(num){
         var player = players.getPlayer(socket.id);
@@ -221,13 +222,13 @@ io.on('connection', (socket) => {
         if(game.gameData.questionLive == true){//if the question is still live
             player.gameData.answer = num;
             game.gameData.playersAnswered += 1;
-            
+
             var gameQuestion = game.gameData.question;
             var gameid = game.gameData.gameid;
-            
+
             MongoClient.connect(url, function(err, db){
                 if (err) throw err;
-    
+
                 var dbo = db.db('kahootDB');
                 var query = { id:  parseInt(gameid)};
                 dbo.collection("kahootGames").find(query).toArray(function(err, res) {
@@ -252,21 +253,21 @@ io.on('connection', (socket) => {
                             playersAnswered: game.gameData.playersAnswered
                         });
                     }
-                    
+
                     db.close();
                 });
             });
-            
-            
-            
+
+
+
         }
     });
-    
+
     socket.on('getScore', function(){
         var player = players.getPlayer(socket.id);
-        socket.emit('newScore', player.gameData.score); 
+        socket.emit('newScore', player.gameData.score);
     });
-    
+
     socket.on('time', function(data){
         var time = data.time / 20;
         time = time * 100;
@@ -274,32 +275,32 @@ io.on('connection', (socket) => {
         var player = players.getPlayer(playerid);
         player.gameData.score += time;
     });
-    
-    
-    
+
+
+
     socket.on('timeUp', function(){
         var game = games.getGame(socket.id);
         game.gameData.questionLive = false;
         var playerData = players.getPlayers(game.hostId);
-        
+
         var gameQuestion = game.gameData.question;
         var gameid = game.gameData.gameid;
-            
+
             MongoClient.connect(url, function(err, db){
                 if (err) throw err;
-    
+
                 var dbo = db.db('kahootDB');
                 var query = { id:  parseInt(gameid)};
                 dbo.collection("kahootGames").find(query).toArray(function(err, res) {
                     if (err) throw err;
                     var correctAnswer = res[0].questions[gameQuestion - 1].correct;
                     io.to(game.pin).emit('questionOver', playerData, correctAnswer);
-                    
+
                     db.close();
                 });
             });
     });
-    
+
     socket.on('nextQuestion', function(){
         var playerData = players.getPlayers(socket.id);
         //Reset players current answer to 0
@@ -308,23 +309,23 @@ io.on('connection', (socket) => {
                 players.players[i].gameData.answer = 0;
             }
         }
-        
+
         var game = games.getGame(socket.id);
         game.gameData.playersAnswered = 0;
         game.gameData.questionLive = true;
         game.gameData.question += 1;
         var gameid = game.gameData.gameid;
-        
-        
-        
+
+
+
         MongoClient.connect(url, function(err, db){
                 if (err) throw err;
-    
+
                 var dbo = db.db('kahootDB');
                 var query = { id:  parseInt(gameid)};
                 dbo.collection("kahootGames").find(query).toArray(function(err, res) {
                     if (err) throw err;
-                    
+
                     if(res[0].questions.length >= game.gameData.question){
                         var questionNum = game.gameData.question;
                         questionNum = questionNum - 1;
@@ -352,7 +353,7 @@ io.on('connection', (socket) => {
                         var third = {name: "", score: 0};
                         var fourth = {name: "", score: 0};
                         var fifth = {name: "", score: 0};
-                        
+
                         for(var i = 0; i < playersInGame.length; i++){
                             console.log(playersInGame[i].gameData.score);
                             if(playersInGame[i].gameData.score > fifth.score){
@@ -363,29 +364,29 @@ io.on('connection', (socket) => {
                                                 //First Place
                                                 fifth.name = fourth.name;
                                                 fifth.score = fourth.score;
-                                                
+
                                                 fourth.name = third.name;
                                                 fourth.score = third.score;
-                                                
+
                                                 third.name = second.name;
                                                 third.score = second.score;
-                                                
+
                                                 second.name = first.name;
                                                 second.score = first.score;
-                                                
+
                                                 first.name = playersInGame[i].name;
                                                 first.score = playersInGame[i].gameData.score;
                                             }else{
                                                 //Second Place
                                                 fifth.name = fourth.name;
                                                 fifth.score = fourth.score;
-                                                
+
                                                 fourth.name = third.name;
                                                 fourth.score = third.score;
-                                                
+
                                                 third.name = second.name;
                                                 third.score = second.score;
-                                                
+
                                                 second.name = playersInGame[i].name;
                                                 second.score = playersInGame[i].gameData.score;
                                             }
@@ -393,10 +394,10 @@ io.on('connection', (socket) => {
                                             //Third Place
                                             fifth.name = fourth.name;
                                             fifth.score = fourth.score;
-                                                
+
                                             fourth.name = third.name;
                                             fourth.score = third.score;
-                                            
+
                                             third.name = playersInGame[i].name;
                                             third.score = playersInGame[i].gameData.score;
                                         }
@@ -404,7 +405,7 @@ io.on('connection', (socket) => {
                                         //Fourth Place
                                         fifth.name = fourth.name;
                                         fifth.score = fourth.score;
-                                        
+
                                         fourth.name = playersInGame[i].name;
                                         fourth.score = playersInGame[i].gameData.score;
                                     }
@@ -415,7 +416,7 @@ io.on('connection', (socket) => {
                                 }
                             }
                         }
-                        
+
                         io.to(game.pin).emit('GameOver', {
                             num1: first.name,
                             num2: second.name,
@@ -426,23 +427,23 @@ io.on('connection', (socket) => {
                     }
                 });
             });
-        
+
         io.to(game.pin).emit('nextQuestionPlayer');
     });
-    
+
     //When the host starts the game
     socket.on('startGame', () => {
         var game = games.getGame(socket.id);//Get the game based on socket.id
         game.gameLive = true;
         socket.emit('gameStarted', game.hostId);//Tell player and host that game has started
     });
-    
+
     //Give user game names data
     socket.on('requestDbNames', function(){
-        
+
         MongoClient.connect(url, function(err, db){
             if (err) throw err;
-    
+
             var dbo = db.db('kahootDB');
             dbo.collection("kahootGames").find().toArray(function(err, res) {
                 if (err) throw err;
@@ -450,11 +451,11 @@ io.on('connection', (socket) => {
                 db.close();
             });
         });
-        
-         
+
+
     });
-    
-    
+
+
     socket.on('newQuiz', function(data){
         MongoClient.connect(url, function(err, db){
             if (err) throw err;
@@ -476,56 +477,10 @@ io.on('connection', (socket) => {
                 db.close();
                 socket.emit('startGameFromCreator', num);
             });
-            
+
         });
-        
-        
+
+
     });
-    
+
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
