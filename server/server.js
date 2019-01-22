@@ -19,9 +19,9 @@ var players = new Players();
 var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
 var mongoose = require('mongoose');
-var url = 'mongodb://mio:deepbluesea777@ds157834.mlab.com:57834/kahootdb';
+//var url = 'mongodb://mio:deepbluesea777@ds157834.mlab.com:57834/kahootdb';
 //mongoose.connect('mongodb://mio:deepbluesea777@ds163054.mlab.com:63054/easyquizy');
-
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/polling');
 
 app.use(express.static(publicPath));
 app.listen(process.env.PORT || 3000, () => console.log('Server has started'));
