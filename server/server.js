@@ -23,7 +23,7 @@ var mongoose = require('mongoose');
 app.use(express.static(publicPath));
 
 //var url = 'mongodb://mio:deepbluesea777@ds157834.mlab.com:57834/kahootdb';
-mongoose.connect('mongodb://mio:deepbluesea777@ds157834.mlab.com:57834/kahootdb');
+mongoose.connect('mongodb://heroku_qn7t8qpv:4svujvfak0odul89ktr8v68ite@ds163694.mlab.com:63694/heroku_qn7t8qpv');
 
 //Starting server on port 3000
 var server_port = process.env.YOUR_PORT || process.env.PORT || 80;
