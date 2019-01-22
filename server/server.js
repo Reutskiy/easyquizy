@@ -18,9 +18,12 @@ var players = new Players();
 //Mongodb setup
 var MongoClient = require('mongodb').MongoClient;
 var mongoose = require('mongoose');
-var url = 'mongodb://mio:deepbluesea777@ds157834.mlab.com:57834/kahootdb';
+
 
 app.use(express.static(publicPath));
+
+//var url = 'mongodb://mio:deepbluesea777@ds157834.mlab.com:57834/kahootdb';
+mongoose.connect('mongodb://mio:deepbluesea777@ds157834.mlab.com:57834/kahootdb');
 
 //Starting server on port 3000
 var server_port = process.env.YOUR_PORT || process.env.PORT || 80;
