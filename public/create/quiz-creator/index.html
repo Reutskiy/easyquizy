@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Creator | KahootClone</title>
+        <title>Creator </title>
         <link rel = "stylesheet" href = "../../css/quizCreator.css">
         <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
     </head>
     <body onload = "setBGColor()">
-        <h1 id = "title">Kahoot Quiz Creator Studio</h1>
-        
+        <h1 id = "title">Create a quiz</h1>
+
         <div class="form-field">
             <label id = "quizTitle">Quiz Title</label>
             <input id = "name" type = "text" name="name" autofocus/>
@@ -38,18 +38,18 @@
         </div>
         <br>
         <button onclick = "addQuestion()">Add another question</button>
-        
+
         <br>
         <br>
-        
+
         <div class="form-field">
             <button onclick = "updateDatabase()">Create Quiz</button>
         </div>
-        
+
         <br>
-        
+
         <button onclick = 'cancelQuiz()'>Cancel quiz and return to quiz selection</button>
-        
+
         <script src = "../../socket.io/socket.io.js"></script>
         <script src = "../../js/quizCreator.js"></script>
     </body>
